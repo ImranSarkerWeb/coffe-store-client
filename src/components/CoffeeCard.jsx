@@ -1,7 +1,40 @@
 /* eslint-disable no-unused-vars */
+
+import { Link } from "react-router-dom";
+import swal from "sweetalert";
+
 /* eslint-disable react/prop-types */
-const CoffeeCard = ({ coffee }) => {
-  const { name, quantity, supplier, taste, category, details, photo } = coffee;
+const CoffeeCard = ({ coffee, coffees, setCoffees }) => {
+  const { _id, name, quantity, supplier, taste, category, details, photo } =
+    coffee;
+
+  const handleDelete = (_id) => {
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover this imaginary file!",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        fetch(`http://localhost:5000/coffee/${_id}`, {
+          method: "DELETE",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.deletedCount > 0) {
+              swal("Poof! Your imaginary file has been deleted!", {
+                icon: "success",
+              });
+              const remaining = coffees.filter((coff) => coff._id !== _id);
+              setCoffees(remaining);
+            }
+          });
+      } else {
+        swal("Your imaginary file is safe!");
+      }
+    });
+  };
   return (
     <div className="card card-side bg-base-100 p-10 shadow-xl">
       <figure>
@@ -14,8 +47,15 @@ const CoffeeCard = ({ coffee }) => {
         </div>
         <div className="flex flex-col space-y-3">
           <button className="btn">View</button>
-          <button className="btn">Edit</button>
-          <button className="btn">X</button>
+          <Link to={`/updateCoffee/${_id}`}>
+            <button className="btn">Edit</button>
+          </Link>
+          <button
+            onClick={() => handleDelete(_id)}
+            className="btn bg-amber-700 border-none hover:bg-amber-800"
+          >
+            X
+          </button>
         </div>
       </div>
     </div>
